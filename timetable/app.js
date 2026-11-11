@@ -4,12 +4,13 @@
   var THEME_KEY = "timetable-theme";
 
   var DAYS = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
+  // 郑东校区一天 13 节，按大节分组
   var SLOTS = [
-    { i: 1, label: "1-2节\n08:00" },
-    { i: 2, label: "3-4节\n10:00" },
-    { i: 3, label: "5-6节\n14:00" },
-    { i: 4, label: "7-8节\n16:00" },
-    { i: 5, label: "9-10节\n19:00" }
+    { label: "1-2节" },
+    { label: "3-5节" },
+    { label: "6-7节" },
+    { label: "8-10节" },
+    { label: "11-13节" },
   ];
 
   var seed = [
@@ -73,6 +74,7 @@
             "<b>" + esc(c.name) + "</b>" +
             (c.room ? "<span>" + esc(c.room) + "</span>" : "") +
             (c.teacher ? "<span>" + esc(c.teacher) + "</span>" : "") +
+            "<span>" + esc(c.weeksText || (c.from + "-" + c.to + "周")) + "</span>" +
             "</div></div>";
         } else {
           html += '<div class="cell" data-day="' + d2 + '" data-slot="' + s + '"></div>';
@@ -292,8 +294,14 @@
     var skipped = 0;
 
     pendingImport.forEach(function (c) {
+      // 同一时间、且周次区间有重叠才算冲突；不同周的两门课可以共存
       var exists = base.some(function (x) {
-        return x.day === c.day && x.slot === c.slot;
+        return (
+          x.day === c.day &&
+          x.slot === c.slot &&
+          x.from <= c.to &&
+          c.from <= x.to
+        );
       });
       if (exists) {
         skipped++;
@@ -308,6 +316,7 @@
         room: c.room || "",
         from: c.from,
         to: c.to,
+        weeksText: c.weeksText || "",
         color: ["blue", "green", "orange", "purple"][added % 4],
       });
       added++;
