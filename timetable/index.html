@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>课程表 · 翟志毅</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="../projects.html">← 返回作品集</a>
+    <h1>课程表</h1>
+    <button class="ghost" id="themeBtn" title="切换主题">◐</button>
+  </header>
+
+  <main class="wrap">
+    <section class="controls">
+      <div class="week-switch">
+        <button id="prevWeek" class="ghost" aria-label="上一周">‹</button>
+        <strong id="weekLabel">第 1 周</strong>
+        <button id="nextWeek" class="ghost" aria-label="下一周">›</button>
+      </div>
+      <label class="odd-even">
+        显示
+        <select id="oddEven">
+          <option value="all">全部</option>
+          <option value="odd">单周</option>
+          <option value="even">双周</option>
+        </select>
+      </label>
+      <button class="primary" id="addBtn">＋ 添加课程</button>
+    </section>
+
+    <div class="grid-scroll">
+      <div class="timetable" id="timetable"></div>
+    </div>
+
+    <p class="hint">点击空白格添加课程，点击已有课程可删除。</p>
+  </main>
+
+  <dialog id="dialog">
+    <form id="form" method="dialog">
+      <h2 id="dialogTitle">添加课程</h2>
+      <label>课程名称<input name="name" required maxlength="20" placeholder="如：数据结构" /></label>
+      <label>教师<input name="teacher" maxlength="12" placeholder="选填" /></label>
+      <label>地点<input name="room" maxlength="16" placeholder="如：3 号楼 201" /></label>
+      <div class="row">
+        <label>起始周<input name="from" type="number" min="1" max="20" value="1" required /></label>
+        <label>结束周<input name="to" type="number" min="1" max="20" value="16" required /></label>
+      </div>
+      <label>颜色
+        <select name="color">
+          <option value="blue">蓝</option>
+          <option value="green">绿</option>
+          <option value="orange">橙</option>
+          <option value="purple">紫</option>
+        </select>
+      </label>
+      <menu>
+        <button value="cancel" class="ghost" formnovalidate>取消</button>
+        <button value="save" class="primary">保存</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
