@@ -25,7 +25,9 @@
 
     <div class="project-grid">
       <article class="project-card">
-        <div class="project-thumb">【换成你的页面截图】</div>
+        <a class="project-thumb" href="index.html">
+          <img src="assets/home.png" alt="个人作品集网站首页截图" loading="lazy" />
+        </a>
         <div class="project-body">
           <h3>个人作品集网站</h3>
           <p>
@@ -37,35 +39,54 @@
             <li>CSS</li>
             <li>JavaScript</li>
           </ul>
+          <p class="project-links">
+            <a href="index.html">在线预览</a>
+            <a href="https://github.com/herny6969/portfolio" target="_blank" rel="noopener">源码</a>
+          </p>
         </div>
       </article>
 
       <article class="project-card">
-        <div class="project-thumb">【第二个项目截图】</div>
+        <a class="project-thumb" href="books/">
+          <img src="assets/books.png" alt="图书管理页面截图" loading="lazy" />
+        </a>
         <div class="project-body">
-          <h3>课程作业：图书管理页面</h3>
+          <h3>图书管理</h3>
           <p>
-课程设计，实现了增删改查和搜索。第一版在手机上排版全乱，
-后来用 Flex 换行和媒体查询修好了。
+课程设计。实现了增删改查、关键词搜索、状态筛选和统计，
+数据存在 localStorage，刷新不丢。
           </p>
           <ul class="tags">
-            <li>Vue</li>
             <li>原生 JS</li>
+            <li>localStorage</li>
+            <li>响应式表格</li>
           </ul>
+          <p class="project-links">
+            <a href="books/">在线预览</a>
+            <a href="https://github.com/herny6969/portfolio/tree/main/books" target="_blank" rel="noopener">源码</a>
+          </p>
         </div>
       </article>
 
       <article class="project-card">
-        <div class="project-thumb">【待补充】</div>
+        <a class="project-thumb" href="timetable/">
+          <img src="assets/timetable.png" alt="课程表小工具截图" loading="lazy" />
+        </a>
         <div class="project-body">
-          <h3>下一个项目（进行中）</h3>
+          <h3>课程表小工具</h3>
           <p>
-准备做一个课程表小工具：支持本地保存、周次切换和深浅色主题。
+支持周次切换（第 1–20 周）、单双周过滤、点击格子添加课程，
+课程数据本地保存，也能切深色模式。
           </p>
           <ul class="tags">
-            <li>Vue</li>
+            <li>原生 JS</li>
+            <li>CSS Grid</li>
             <li>localStorage</li>
           </ul>
+          <p class="project-links">
+            <a href="timetable/">在线预览</a>
+            <a href="https://github.com/herny6969/portfolio/tree/main/timetable" target="_blank" rel="noopener">源码</a>
+          </p>
         </div>
       </article>
     </div>
