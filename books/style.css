@@ -124,6 +124,8 @@ button:hover { opacity: 0.88; }
 .empty { color: var(--muted); font-size: 14px; padding: 20px 0; }
 
 dialog {
+  margin: auto; /* 重置 margin:0 后需显式居中 */
+  max-height: 88vh;
   border: none;
   border-radius: 14px;
   padding: 0;
