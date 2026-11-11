@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>你的名字 · 前端作品集</title>
+  <meta name="description" content="软件开发专业在读，方向是 Web 前端开发。" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html">你的名字<span class="dot">.</span></a>
+
+    <nav class="nav" aria-label="主导航">
+      <a href="index.html" class="nav-link is-active">首页</a>
+      <a href="projects.html" class="nav-link">项目</a>
+      <a href="about.html" class="nav-link">关于</a>
+    </nav>
+
+    <button class="theme-toggle" id="themeToggle" aria-label="切换深色模式">
+      <span class="theme-icon">◐</span>
+    </button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">软件开发 · 大二 · 前端方向</p>
+      <h1 class="hero-title">
+        用代码，<br />
+        把想法变成能点的页面。
+      </h1>
+      <p class="hero-desc">
+        我是你的名字，正在从"会用网页"走向"能做网页"。
+        这里记录我做的页面、踩过的坑，以及还在补的功课。
+      </p>
+
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="projects.html">看项目</a>
+        <a class="btn btn-ghost" href="about.html">关于我</a>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">技能栈</h2>
+      <p class="section-sub">目前掌握到的程度，如实写。</p>
+
+      <ul class="skill-grid">
+        <li class="skill-card">
+          <h3>HTML / CSS</h3>
+          <p>语义化标签、Flex 与 Grid 布局、响应式适配</p>
+          <div class="bar"><span style="width: 75%"></span></div>
+        </li>
+        <li class="skill-card">
+          <h3>JavaScript</h3>
+          <p>DOM 操作、事件处理、基础异步</p>
+          <div class="bar"><span style="width: 55%"></span></div>
+        </li>
+        <li class="skill-card">
+          <h3>Vue</h3>
+          <p>组件化、数据驱动、路由入门</p>
+          <div class="bar"><span style="width: 40%"></span></div>
+        </li>
+        <li class="skill-card">
+          <h3>Git</h3>
+          <p>提交、分支、合并，能看懂冲突</p>
+          <div class="bar"><span style="width: 50%"></span></div>
+        </li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">最近在做什么</h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <span class="timeline-date">2026.11</span>
+          <div>
+            <h3>搭这个作品集</h3>
+            <p>从零写 HTML/CSS/JS，做了响应式和深色模式，部署到 GitHub Pages。</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-date">2026.10</span>
+          <div>
+            <h3>补 JavaScript 基础</h3>
+            <p>重点在异步和闭包，目前还在啃，能写但讲不透。</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-date">2026.09</span>
+          <div>
+            <h3>确定前端方向</h3>
+            <p>比过算法、后端、游戏，最后选了反馈最快的那条。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 你的名字 · 用 HTML/CSS/JS 手写</p>
+    <p class="footer-links">
+      <a href="mailto:you@example.com">邮箱</a>
+      <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </footer>
+
+  <script src="assets/main.js"></script>
+</body>
+</html>
