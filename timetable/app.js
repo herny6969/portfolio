@@ -112,7 +112,6 @@
   });
 
   form.addEventListener("submit", function (e) {
-    if (dialog.returnValue === "cancel") return;
     e.preventDefault();
     if (!pending) return;
     var item = {
@@ -130,6 +129,10 @@
     data.push(item);
     save();
     render();
+    dialog.close();
+  });
+
+  document.getElementById("cancelAdd").addEventListener("click", function () {
     dialog.close();
   });
 
@@ -188,6 +191,11 @@
   });
 
   document.getElementById("parseBtn").addEventListener("click", parsePreview);
+
+  // 方便直接打开导入框：地址后加 #import
+  if (location.hash === "#import") {
+    document.getElementById("importBtn").click();
+  }
 
   function parsePreview() {
     var raw = importText.value;
