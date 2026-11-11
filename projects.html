@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>项目 · 你的名字</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html">你的名字<span class="dot">.</span></a>
+    <nav class="nav" aria-label="主导航">
+      <a href="index.html" class="nav-link">首页</a>
+      <a href="projects.html" class="nav-link is-active">项目</a>
+      <a href="about.html" class="nav-link">关于</a>
+    </nav>
+    <button class="theme-toggle" id="themeToggle" aria-label="切换深色模式">
+      <span class="theme-icon">◐</span>
+    </button>
+  </header>
+
+  <main class="section">
+    <h1 class="section-title">项目</h1>
+    <p class="section-sub">做过的、正在做的，都放在这里。没做完的会标出来。</p>
+
+    <div class="project-grid">
+      <article class="project-card">
+        <div class="project-thumb">【换成你的页面截图】</div>
+        <div class="project-body">
+          <h3>个人作品集网站</h3>
+          <p>
+这站本身。从零手写 HTML/CSS/JS，做了响应式布局和深色模式切换，
+部署在 GitHub Pages 上。
+          </p>
+          <ul class="tags">
+            <li>HTML</li>
+            <li>CSS</li>
+            <li>JavaScript</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="project-card">
+        <div class="project-thumb">【第二个项目截图】</div>
+        <div class="project-body">
+          <h3>课程作业：图书管理页面</h3>
+          <p>
+课程设计，实现了增删改查和搜索。第一版在手机上排版全乱，
+后来用 Flex 换行和媒体查询修好了。
+          </p>
+          <ul class="tags">
+            <li>Vue</li>
+            <li>原生 JS</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="project-card">
+        <div class="project-thumb">【待补充】</div>
+        <div class="project-body">
+          <h3>下一个项目（进行中）</h3>
+          <p>
+准备做一个课程表小工具：支持本地保存、周次切换和深浅色主题。
+          </p>
+          <ul class="tags">
+            <li>Vue</li>
+            <li>localStorage</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 你的名字 · 用 HTML/CSS/JS 手写</p>
+    <p class="footer-links">
+      <a href="mailto:you@example.com">邮箱</a>
+      <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </footer>
+
+  <script src="assets/main.js"></script>
+</body>
+</html>
