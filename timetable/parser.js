@@ -158,17 +158,32 @@
    *  【调】计算机组成原理○ 周数：2-16周(双) 校区:郑东校区 上课地点：实A-407  教师 ：黄磊 教学班：…
    */
   function parseExportText(text) {
-    var lines = String(text || "").replace(/\r/g, "").split("\n");
+    var rawLines = String(text || "").replace(/\r/g, "").split("\n");
+
+    // 课程信息在页面上会折行，先把「续行」并回上一行
+    var lines = [];
+    rawLines.forEach(function (l) {
+      var t = l.replace(/\t/g, " ").trim();
+      if (!t) return;
+      var isDay = /^星期[一二三四五六日天]/.test(t);
+      var isSec = /^\d{1,2}\s*-\s*\d{1,2}\s*$/.test(t);
+      if (!isDay && !isSec && lines.length && lines[lines.length - 1].indexOf("周数：") > -1) {
+        lines[lines.length - 1] += " " + t;
+      } else {
+        lines.push(t);
+      }
+    });
+
     var out = [];
     var day = -1;
     var slot = -1;
 
     for (var i = 0; i < lines.length; i++) {
-      var line = lines[i].replace(/\t/g, " ").trim();
+      var line = lines[i];
       if (!line) continue;
 
       // 星期行
-      if (/^星期[一二三四五六日天]$/.test(line)) {
+      if (/^星期[一二三四五六日天]/.test(line)) {
         day = dayOf(line);
         continue;
       }
@@ -196,7 +211,8 @@
 
         var weeksText = (line.match(/周数：([^\s]+)/) || [])[1] || "";
         var room = (line.match(/上课地点[：:]\s*([^\s]+)/) || [])[1] || "";
-        var teacher = (line.match(/教师\s*[：:]\s*([^\s]+)/) || [])[1] || "";
+        var teacherM = line.match(/教师\s*[：:]\s*(.+?)(?=\s*教学班[：:]|$)/);
+        var teacher = teacherM ? teacherM[1].replace(/\s+/g, "") : "";
 
         var range = weeksText.match(/(\d{1,2})\s*[-–~至]\s*(\d{1,2})\s*周/);
         var single = weeksText.match(/第?\s*(\d{1,2})\s*周/);
