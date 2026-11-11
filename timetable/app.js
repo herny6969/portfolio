@@ -90,34 +90,157 @@
     });
   }
 
-  // 点击空白格 → 添加
+  // ---------- 弹窗：添加 / 编辑 ----------
+  var editingId = null;
+  var ctxMenu = document.getElementById("ctxMenu");
+  var ctxTarget = null; // { type: 'course'|'cell', id?, day, slot }
+
+  function openAdd(day, slot) {
+    editingId = null;
+    pending = { day: day, slot: slot };
+    document.getElementById("dialogTitle").textContent = "添加课程";
+    form.reset();
+    form.from.value = 1;
+    form.to.value = 16;
+    dialog.showModal();
+  }
+
+  function openEdit(id) {
+    var c = data.find(function (x) { return x.id === id; });
+    if (!c) return;
+    editingId = id;
+    pending = { day: c.day, slot: c.slot };
+    document.getElementById("dialogTitle").textContent = "编辑课程";
+    form.name.value = c.name;
+    form.teacher.value = c.teacher || "";
+    form.room.value = c.room || "";
+    form.from.value = c.from;
+    form.to.value = c.to;
+    form.color.value = c.color || "blue";
+    dialog.showModal();
+  }
+
+  function deleteCourse(id) {
+    var c = data.find(function (x) { return x.id === id; });
+    if (!c) return;
+    if (!confirm("删除《" + c.name + "》？")) return;
+    data = data.filter(function (x) { return x.id !== id; });
+    save();
+    render();
+  }
+
+  // 单击课程 → 编辑；单击空白格 → 添加
   grid.addEventListener("click", function (e) {
     var courseEl = e.target.closest(".course");
     if (courseEl) {
-      var id = Number(courseEl.getAttribute("data-id"));
-      var c = data.find(function (x) { return x.id === id; });
-      if (c && confirm("删除《" + c.name + "》？")) {
-        data = data.filter(function (x) { return x.id !== id; });
-        save();
-        render();
-      }
+      openEdit(Number(courseEl.getAttribute("data-id")));
       return;
     }
     var cell = e.target.closest(".cell");
     if (cell && cell.hasAttribute("data-day")) {
-      pending = { day: Number(cell.dataset.day), slot: Number(cell.dataset.slot) };
-      form.reset();
-      form.from.value = 1;
-      form.to.value = 16;
-      dialog.showModal();
+      openAdd(Number(cell.dataset.day), Number(cell.dataset.slot));
     }
+  });
+
+  // ---------- 右键菜单 ----------
+  function showMenu(x, y, target) {
+    ctxTarget = target;
+    var isCourse = target.type === "course";
+    ctxMenu.querySelector('[data-act="edit"]').hidden = !isCourse;
+    ctxMenu.querySelector('[data-act="delete"]').hidden = !isCourse;
+    ctxMenu.querySelector('[data-act="add"]').hidden = isCourse;
+
+    ctxMenu.hidden = false;
+    // 靠近右边/下边时翻到内侧，避免超出视口
+    var rect = ctxMenu.getBoundingClientRect();
+    var left = x + rect.width > window.innerWidth - 8 ? x - rect.width : x;
+    var top = y + rect.height > window.innerHeight - 8 ? y - rect.height : y;
+    ctxMenu.style.left = Math.max(8, left) + "px";
+    ctxMenu.style.top = Math.max(8, top) + "px";
+  }
+
+  function hideMenu() {
+    ctxMenu.hidden = true;
+    ctxTarget = null;
+  }
+
+  grid.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+    var courseEl = e.target.closest(".course");
+    if (courseEl) {
+      showMenu(e.clientX, e.clientY, {
+        type: "course",
+        id: Number(courseEl.getAttribute("data-id")),
+      });
+      return;
+    }
+    var cell = e.target.closest(".cell");
+    if (cell && cell.hasAttribute("data-day")) {
+      showMenu(e.clientX, e.clientY, {
+        type: "cell",
+        day: Number(cell.dataset.day),
+        slot: Number(cell.dataset.slot),
+      });
+    } else {
+      hideMenu();
+    }
+  });
+
+  ctxMenu.addEventListener("click", function (e) {
+    var act = e.target.getAttribute("data-act");
+    if (!act || !ctxTarget) return;
+    var t = ctxTarget;
+    hideMenu();
+    if (act === "edit") openEdit(t.id);
+    else if (act === "delete") deleteCourse(t.id);
+    else if (act === "add") openAdd(t.day, t.slot);
+  });
+
+  document.addEventListener("click", function (e) {
+    if (!ctxMenu.hidden && !ctxMenu.contains(e.target)) hideMenu();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") hideMenu();
+  });
+
+  window.addEventListener("scroll", hideMenu, true);
+  window.addEventListener("resize", hideMenu);
+
+  // 手机上长按 ≈ 右键
+  var pressTimer = null;
+  grid.addEventListener("touchstart", function (e) {
+    var courseEl = e.target.closest(".course");
+    var cell = e.target.closest(".cell");
+    if (!courseEl && !cell) return;
+    var touch = e.touches[0];
+    pressTimer = setTimeout(function () {
+      if (courseEl) {
+        showMenu(touch.clientX, touch.clientY, {
+          type: "course",
+          id: Number(courseEl.getAttribute("data-id")),
+        });
+      } else if (cell.hasAttribute("data-day")) {
+        showMenu(touch.clientX, touch.clientY, {
+          type: "cell",
+          day: Number(cell.dataset.day),
+          slot: Number(cell.dataset.slot),
+        });
+      }
+    }, 550);
+  }, { passive: true });
+
+  ["touchend", "touchmove", "touchcancel"].forEach(function (evt) {
+    grid.addEventListener(evt, function () {
+      clearTimeout(pressTimer);
+    }, { passive: true });
   });
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     if (!pending) return;
     var item = {
-      id: Date.now(),
+      id: editingId || Date.now(),
       day: pending.day,
       slot: pending.slot,
       name: form.name.value.trim(),
@@ -125,13 +248,21 @@
       room: form.room.value.trim(),
       from: Number(form.from.value),
       to: Number(form.to.value),
-      color: form.color.value
+      weeksText: "",
+      color: form.color.value,
     };
     if (!item.name) return;
-    data.push(item);
+
+    if (editingId) {
+      var idx = data.findIndex(function (x) { return x.id === editingId; });
+      if (idx > -1) data[idx] = item;
+    } else {
+      data.push(item);
+    }
     save();
     render();
     dialog.close();
+    editingId = null;
   });
 
   document.getElementById("cancelAdd").addEventListener("click", function () {
