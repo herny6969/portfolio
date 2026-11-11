@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>课程表 · 翟志毅</title>
-  <link rel="stylesheet" href="style.css?v=20261111b" />
+  <link rel="stylesheet" href="style.css?v=20261111c" />
 </head>
 <body>
   <header class="topbar">
@@ -36,8 +36,15 @@
       <div class="timetable" id="timetable"></div>
     </div>
 
-    <p class="hint">点击空白格添加课程，点击已有课程可删除。</p>
+    <p class="hint">点击空白格添加课程；左键课程可编辑，右键更多操作。</p>
   </main>
+
+  <!-- 右键菜单 -->
+  <div class="ctx-menu" id="ctxMenu" hidden>
+    <button type="button" data-act="edit">编辑课程</button>
+    <button type="button" data-act="delete">删除课程</button>
+    <button type="button" data-act="add" hidden>在此添加课程</button>
+  </div>
 
   <dialog id="dialog">
     <form id="form" method="dialog">
@@ -91,9 +98,9 @@
     </div>
   </dialog>
 
-  <script src="vendor/pdf.min.js?v=20261111b"></script>
-  <script src="parser.js?v=20261111b"></script>
-  <script src="pdf-import.js?v=20261111b"></script>
-  <script src="app.js?v=20261111b"></script>
+  <script src="vendor/pdf.min.js?v=20261111c"></script>
+  <script src="parser.js?v=20261111c"></script>
+  <script src="pdf-import.js?v=20261111c"></script>
+  <script src="app.js?v=20261111c"></script>
 </body>
 </html>
