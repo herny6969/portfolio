@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>图书管理 · 翟志毅</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="../projects.html">← 返回作品集</a>
+    <h1>图书管理</h1>
+    <button class="ghost" id="themeBtn" title="切换主题">◐</button>
+  </header>
+
+  <main class="wrap">
+    <section class="stats" id="stats"></section>
+
+    <section class="toolbar">
+      <input id="search" type="search" placeholder="搜书名、作者或分类…" />
+      <select id="filter">
+        <option value="all">全部状态</option>
+        <option value="unread">未读</option>
+        <option value="reading">在读</option>
+        <option value="done">已读</option>
+      </select>
+      <button class="primary" id="addBtn">＋ 添加图书</button>
+    </section>
+
+    <table class="book-table">
+      <thead>
+        <tr>
+          <th>书名</th>
+          <th>作者</th>
+          <th>分类</th>
+          <th>状态</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+
+    <p class="empty" id="empty" hidden>没有匹配的图书，换个关键词试试。</p>
+  </main>
+
+  <!-- 添加/编辑弹窗 -->
+  <dialog id="dialog">
+    <form id="form" method="dialog">
+      <h2 id="dialogTitle">添加图书</h2>
+      <label>书名<input name="title" required maxlength="40" /></label>
+      <label>作者<input name="author" required maxlength="20" /></label>
+      <label>分类
+        <select name="category">
+          <option>技术</option>
+          <option>文学</option>
+          <option>历史</option>
+          <option>其他</option>
+        </select>
+      </label>
+      <label>状态
+        <select name="status">
+          <option value="unread">未读</option>
+          <option value="reading">在读</option>
+          <option value="done">已读</option>
+        </select>
+      </label>
+      <menu>
+        <button value="cancel" class="ghost" formnovalidate>取消</button>
+        <button value="save" class="primary">保存</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
