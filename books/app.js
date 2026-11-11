@@ -120,8 +120,6 @@
   });
 
   form.addEventListener("submit", function (e) {
-    // 点“取消”时 value 是 cancel，直接关掉不保存
-    if (dialog.returnValue === "cancel") return;
     e.preventDefault();
     var data = {
       title: form.title.value.trim(),
@@ -145,6 +143,10 @@
 
   search.addEventListener("input", render);
   filter.addEventListener("change", render);
+
+  document.getElementById("cancelBook").addEventListener("click", function () {
+    dialog.close();
+  });
 
   // 主题
   var root = document.documentElement;
