@@ -204,6 +204,19 @@
         var grid = await window.pdfToGridText(new Uint8Array(fr.result));
         importText.value = grid;
         parsePreview();
+
+        // 文字层坏了：给出针对性提示，别让用户以为是自己的操作问题
+        if (!pendingImport.length && looksGarbled(grid)) {
+          preview.innerHTML =
+            "<b>这份 PDF 的文字层是坏的</b>（字体未嵌入或编码错乱），任何工具都读不出来。<br>" +
+            "可以这样处理：<br>" +
+            "1）在教务系统里直接按 Ctrl+A、Ctrl+C 复制课表，粘贴到上面的框；<br>" +
+            "2）导出 Excel/Word 另存为 CSV 再导入；<br>" +
+            "3）用 Edge 打开这个 PDF，打印 → Microsoft Print to PDF 重新生成一份。";
+          preview.className = "preview";
+          return;
+        }
+
         if (!pendingImport.length) {
           preview.innerHTML =
             "PDF 里没解析出课程。<br>可能是扫描件（图片型 PDF），这种没有文字层，需要先 OCR；<br>也可能是版式特殊，可以试试把文字复制出来粘贴。";
@@ -218,6 +231,16 @@
   });
 
   document.getElementById("parseBtn").addEventListener("click", parsePreview);
+
+  /** 粗略判断抽出来的文字是不是坏的（字体未嵌入 / 编码错乱） */
+  function looksGarbled(text) {
+    var compact = String(text).replace(/\s/g, "");
+    if (!compact) return false;
+    var bad = (compact.match(/[\uFFFD\u25A1\u25A0\u0000-\u001F?？]/g) || []).length;
+    var cjk = (compact.match(/[\u4e00-\u9fa5]/g) || []).length;
+    // 有明显乱码符号，或者几乎没有汉字 → 认为文字层不可用
+    return bad / compact.length > 0.15 || (cjk / compact.length < 0.1 && compact.length > 30);
+  }
 
   // 方便直接打开导入框：地址后加 #import
   if (location.hash === "#import") {
