@@ -178,16 +178,43 @@
     importDialog.close();
   });
 
-  // 选 CSV/TXT 文件直接读进文本框
+  // 选 CSV / TXT / PDF 文件直接读进来
   document.getElementById("importFile").addEventListener("change", function (e) {
     var f = e.target.files && e.target.files[0];
     if (!f) return;
-    var reader = new FileReader();
-    reader.onload = function () {
-      importText.value = String(reader.result || "");
-      parsePreview();
+
+    var isPdf = /\.pdf$/i.test(f.name) || f.type === "application/pdf";
+
+    if (!isPdf) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        importText.value = String(reader.result || "");
+        parsePreview();
+      };
+      reader.readAsText(f, "utf-8");
+      return;
+    }
+
+    // PDF：先抽文字，再按坐标还原成表格
+    preview.className = "preview";
+    preview.textContent = "正在解析 PDF…";
+    var fr = new FileReader();
+    fr.onload = async function () {
+      try {
+        var grid = await window.pdfToGridText(new Uint8Array(fr.result));
+        importText.value = grid;
+        parsePreview();
+        if (!pendingImport.length) {
+          preview.innerHTML =
+            "PDF 里没解析出课程。<br>可能是扫描件（图片型 PDF），这种没有文字层，需要先 OCR；<br>也可能是版式特殊，可以试试把文字复制出来粘贴。";
+          preview.className = "preview";
+        }
+      } catch (err) {
+        preview.textContent = "PDF 解析失败：" + err.message;
+        preview.className = "preview";
+      }
     };
-    reader.readAsText(f, "utf-8");
+    fr.readAsArrayBuffer(f);
   });
 
   document.getElementById("parseBtn").addEventListener("click", parsePreview);
