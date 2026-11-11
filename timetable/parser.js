@@ -152,10 +152,83 @@
     return { name: name, teacher: teacher, room: room, from: weeks.from, to: weeks.to };
   }
 
+  /** 解析「教务系统导出文本」格式：
+   *  星期一
+   *  1-2
+   *  【调】计算机组成原理○ 周数：2-16周(双) 校区:郑东校区 上课地点：实A-407  教师 ：黄磊 教学班：…
+   */
+  function parseExportText(text) {
+    var lines = String(text || "").replace(/\r/g, "").split("\n");
+    var out = [];
+    var day = -1;
+    var slot = -1;
+
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].replace(/\t/g, " ").trim();
+      if (!line) continue;
+
+      // 星期行
+      if (/^星期[一二三四五六日天]$/.test(line)) {
+        day = dayOf(line);
+        continue;
+      }
+
+      // 节次行，如 "1-2"、"3-5"、"11-13"（按 1-2 / 3-5 / 6-7 / 8-10 / 11-13 分组）
+      var sec = line.match(/^(\d{1,2})\s*-\s*(\d{1,2})$/);
+      if (sec) {
+        var start = Number(sec[1]);
+        slot = start <= 2 ? 0 : start <= 5 ? 1 : start <= 7 ? 2 : start <= 10 ? 3 : 4;
+        continue;
+      }
+
+      // 课程信息行
+      if (line.indexOf("周数：") > -1 && line.indexOf("上课地点") > -1) {
+        if (day < 0 || slot < 0) continue;
+
+        var nameM = line.match(/^(.*?)\s*周数：/);
+        var name = nameM ? nameM[1] : "";
+        name = name
+          .replace(/^【[^】]*】/, "")
+          .replace(/[★☆○●◆◇◎※]+$/g, "")
+          .replace(/\s+/g, "")
+          .trim();
+        if (!name) continue;
+
+        var weeksText = (line.match(/周数：([^\s]+)/) || [])[1] || "";
+        var room = (line.match(/上课地点[：:]\s*([^\s]+)/) || [])[1] || "";
+        var teacher = (line.match(/教师\s*[：:]\s*([^\s]+)/) || [])[1] || "";
+
+        var range = weeksText.match(/(\d{1,2})\s*[-–~至]\s*(\d{1,2})\s*周/);
+        var single = weeksText.match(/第?\s*(\d{1,2})\s*周/);
+        var from = range ? Number(range[1]) : single ? Number(single[1]) : 1;
+        var to = range ? Number(range[2]) : from;
+
+        out.push({
+          name: name,
+          teacher: teacher,
+          room: room === "未排地点" ? "" : room,
+          from: from,
+          to: to,
+          weeksText: weeksText,
+          day: day,
+          slot: slot,
+        });
+      }
+    }
+
+    return out;
+  }
+
   function parseTimetableText(text) {
     var out = [];
     var src = String(text || "").replace(/\r/g, "");
     if (!src.trim()) return out;
+
+    // 教务系统导出的「星期/节次/课程信息」三行式格式
+    if (src.indexOf("周数：") > -1 && src.indexOf("上课地点") > -1) {
+      var exported = parseExportText(src);
+      if (exported.length) return exported;
+    }
 
     var lines = src.split("\n").filter(function (l) { return l.trim(); });
 
