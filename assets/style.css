@@ -160,6 +160,12 @@ a {
   flex-wrap: wrap;
 }
 
+.hero-meta {
+  margin-top: 18px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
 .btn {
   display: inline-block;
   padding: 11px 22px;
