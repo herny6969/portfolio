@@ -29,6 +29,7 @@
         </select>
       </label>
       <button class="primary" id="addBtn">＋ 添加课程</button>
+      <button class="ghost import-btn" id="importBtn">⇩ 从教务系统导入</button>
     </section>
 
     <div class="grid-scroll">
@@ -63,6 +64,34 @@
     </form>
   </dialog>
 
+  <dialog id="importDialog" class="import-dialog">
+    <div class="import-body">
+      <h2>从教务系统导入</h2>
+      <ol class="steps">
+        <li>登录教务系统，打开课表页面（建议用“学生课表”视图）</li>
+        <li>在表格上按 <kbd>Ctrl</kbd> + <kbd>A</kbd> 全选，再 <kbd>Ctrl</kbd> + <kbd>C</kbd> 复制</li>
+        <li>粘贴到下面的输入框，点“解析预览”</li>
+      </ol>
+      <textarea id="importText" rows="8" placeholder="在这里粘贴课表内容…"></textarea>
+      <div class="import-actions">
+        <button type="button" id="parseBtn">解析预览</button>
+        <label class="file-label">或选择文件<input type="file" id="importFile" accept=".csv,.txt" /></label>
+      </div>
+      <div id="preview" class="preview"></div>
+      <p class="import-note">
+        支持整表复制，也支持一行一门课的 CSV：<code>星期一,1-2节,高等数学,刘老师,2-301,1,16</code>
+      </p>
+      <div class="import-footer">
+        <label class="clear-label"><input type="checkbox" id="clearFirst" />导入前清空现有课表</label>
+        <div class="btns">
+          <button type="button" class="ghost" id="cancelImport">取消</button>
+          <button type="button" class="primary" id="confirmImport" disabled>确认导入</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="parser.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
