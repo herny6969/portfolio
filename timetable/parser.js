@@ -22,6 +22,11 @@
   function clean(s) {
     return String(s == null ? "" : s)
       .replace(/\u00a0/g, " ")
+      // PDF 抽出来的中文常被拆成「数 据 结 构」，把汉字之间的空格去掉
+      .replace(/([\u4e00-\u9fa5])\s+(?=[\u4e00-\u9fa5])/g, "$1")
+      .replace(/([\u4e00-\u9fa5])\s+(?=[\u4e00-\u9fa5])/g, "$1")
+      // 3 - 201 / 1 - 16 周 这类被空格拆开的数字
+      .replace(/(\d)\s*[-－]\s*(\d)/g, "$1-$2")
       .replace(/[ \t]+/g, " ")
       .trim();
   }
@@ -62,55 +67,83 @@
     return { from: 1, to: 16 };
   }
 
-  /** 从一个单元格里抠出课程名、教师、地点、周次 */
+  /** 从一个单元格里抠出课程名、教师、地点、周次
+   *  思路：从右往左剥（周次 → 地点 → 教师），剩下的是课程名。
+   *  这样连 PDF 里「数据结构王老师3-2011-16周」这种没有分隔符的也能拆。
+   */
   function parseCell(raw) {
     var text = clean(String(raw).replace(/\n/g, " "));
     if (!text) return null;
     if (/^(无|—+|-+|\/|空|暂无)$/.test(text)) return null;
     if (/^[\d\s\-–~至周节()（）单双]+$/.test(text)) return null;
 
-    var weeks = weekRange(text);
-
-    // 先剥掉周次，避免「1-16」被当成教室号
-    var rest = text
-      .replace(/\d{1,2}\s*[-–~至]\s*\d{1,2}\s*周\s*[（(]?\s*[单双]?\s*[)）]?/g, " ")
-      .replace(/\d{1,2}\s*周\s*[（(]?\s*[单双]?\s*[)）]?/g, " ");
-
-    // 地点：3-201 / A101 / 教三201 / 实验楼302 / 操场
+    var rest = text;
+    var weeks = { from: 1, to: 16 };
     var room = "";
-    var patterns = [
-      /([A-Za-z]?\d{1,2}\s*[-－]\s*\d{3,4})/,
-      /([\u4e00-\u9fa5]{1,6}(?:楼|室|馆|场|区)[A-Za-z0-9\-－]*)/,
-      /((?:教|实验|综合|图书|文|理)\S{0,3}\d{3,4})/,
-      /(操场|体育馆|田径场|机房|教学楼)/,
-    ];
-    for (var i = 0; i < patterns.length; i++) {
-      var rm = rest.match(patterns[i]);
-      if (rm) {
-        room = clean(rm[1]).replace(/\s/g, "");
-        rest = rest.replace(rm[0], " ");
-        break;
+
+    // 0. PDF 常见：「3-2011-16周」= 教室 3-201 + 周次 1-16 周，先整体拆
+    var combo =
+      rest.match(/([A-Z]?\d{1,2}\s*[-－]\s*\d{3,4})\s*(\d{1,2})\s*[-–~]\s*(\d{1,2})\s*周\s*[（(]?\s*[单双]?\s*[)）]?\s*$/) ||
+      rest.match(/((?:教|实验|综合|图书|文|理)[\u4e00-\u9fa5]{0,2}\d{3,4})\s*(\d{1,2})\s*[-–~]\s*(\d{1,2})\s*周\s*[（(]?\s*[单双]?\s*[)）]?\s*$/);
+    if (combo) {
+      room = clean(combo[1]).replace(/\s/g, "");
+      weeks = { from: Number(combo[2]), to: Number(combo[3]) };
+      rest = rest.slice(0, combo.index);
+    }
+
+    // 1. 周次（从末尾剥）
+    if (!room) {
+      var wm =
+        rest.match(/(\d{1,2})\s*[-–~至]\s*(\d{1,2})\s*周\s*[（(]?\s*[单双]?\s*[)）]?\s*$/) ||
+        rest.match(/(\d{1,2})\s*周\s*[（(]?\s*[单双]?\s*[)）]?\s*$/);
+      if (wm) {
+        weeks = { from: Number(wm[1]), to: Number(wm[2] || wm[1]) };
+        rest = rest.slice(0, wm.index);
       }
     }
 
-    // 教师：王老师 / 李教授 / Smith
+    // 2. 地点（从末尾剥）
+    var roomPatterns = [
+      /([A-Z]?\d{1,2}\s*[-－]\s*\d{3,4})\s*$/,
+      /((?:操场|体育馆|田径场|机房|教学楼|图书馆|实验室))\s*$/,
+      /([\u4e00-\u9fa5]{1,4}(?:楼|室|馆|区)[A-Za-z0-9\-－]*)\s*$/,
+      /((?:教|实验|综合|图书|文|理)\S{0,3}\d{3,4})\s*$/,
+    ];
+    if (!room) {
+      for (var i = 0; i < roomPatterns.length; i++) {
+        var rm = rest.match(roomPatterns[i]);
+        if (rm) {
+          room = clean(rm[1]).replace(/\s/g, "");
+          rest = rest.slice(0, rm.index);
+          break;
+        }
+      }
+    }
+
+    // 3. 教师（取最后出现的那个，避免「结构王老师」把课程名尾巴吃进去）
     var teacher = "";
-    var tm = rest.match(/([\u4e00-\u9fa5]{1,3})\s*(?:老师|教授|讲师|助教)/);
-    if (tm) {
-      teacher = clean(tm[0]).replace(/\s/g, "");
-      rest = rest.replace(tm[0], " ");
+    var lastIdx = -1;
+    var lastTxt = "";
+    for (var p = 0; p < rest.length; p++) {
+      var seg = rest.slice(p).match(/^([\u4e00-\u9fa5]{1,3})(老师|教授|讲师|助教)/);
+      if (seg) {
+        lastIdx = p;
+        lastTxt = seg[0];
+      }
+    }
+    if (lastIdx > -1) {
+      teacher = lastTxt;
+      rest = rest.slice(0, lastIdx) + " " + rest.slice(lastIdx + lastTxt.length);
     } else {
-      var en = rest.match(/([A-Z][A-Za-z.]{1,15})/);
+      var en = rest.match(/([A-Z][A-Za-z.]{1,15})\s*$/);
       if (en) {
         teacher = en[1];
-        rest = rest.replace(en[0], " ");
+        rest = rest.slice(0, en.index);
       }
     }
 
-    // 剩下的第一段就是课程名
-    var name = clean(
-      rest.split(/[|｜,，;；]/).map(clean).filter(Boolean)[0] || ""
-    );
+    // 4. 剩下的是课程名
+    var name = clean(rest.split(/[|｜,，;；]/).map(clean).filter(Boolean)[0] || "");
     name = name.replace(/[（(]\s*[)）]/g, "").replace(/^[·・\s]+|[·・\s]+$/g, "");
 
     if (!name || name.length < 2) return null;
@@ -167,7 +200,14 @@
         return;
       }
 
-      if (slotOf(parts[0]) > -1) {
+      var first = clean(parts[0]);
+      var isSplitLabel =
+        /^第?\s*\d{1,2}$/.test(first) &&
+        parts[1] &&
+        /^[-–~]\s*\d{1,2}\s*节/.test(clean(parts[1]));
+      var isRowStart = slotOf(parts[0]) > -1 || /节/.test(parts[0]) || isSplitLabel;
+
+      if (isRowStart) {
         rows.push({ label: parts[0], cells: parts.slice(1) });
       } else if (rows.length) {
         // 有制表符但不是行首：单段内容接到最后一个非空单元格，多段按列并回
@@ -208,10 +248,24 @@
 
     var seen = {};
     rows.forEach(function (row) {
-      var slot = slotOf(row.label);
+      var label = row.label;
+      var cells = row.cells;
+
+      // PDF 抽取常把「第1-2节」拆成两格：「第1」「-2节」
+      var shift = 0;
+      if (/^第?\s*\d{1,2}$/.test(clean(label)) && cells.length) {
+        var next = clean(cells[0]);
+        if (/^[-–~]\s*\d{1,2}\s*节/.test(next)) {
+          label = label + cells[0];
+          cells = cells.slice(1);
+          shift = 1;
+        }
+      }
+
+      var slot = slotOf(label);
       if (slot < 0) return;
-      row.cells.forEach(function (cell, ci) {
-        var day = colDay[ci] !== undefined ? colDay[ci] : ci;
+      cells.forEach(function (cell, ci) {
+        var day = colDay[ci + shift] !== undefined ? colDay[ci + shift] : ci;
         if (day < 0 || day > 6) return;
         var c = parseCell(cell);
         if (!c) return;
