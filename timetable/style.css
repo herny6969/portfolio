@@ -172,3 +172,108 @@ dialog menu { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6
   .timetable { min-width: 640px; padding: 8px; gap: 4px; }
   .cell { min-height: 54px; }
 }
+
+/* ---------- 导入弹窗 ---------- */
+.import-btn { border: 1px dashed var(--line); }
+
+.import-dialog {
+  width: min(620px, 94vw);
+}
+
+.import-body {
+  padding: 22px;
+  display: grid;
+  gap: 12px;
+}
+
+.import-body h2 { font-size: 17px; }
+
+.steps {
+  margin-left: 18px;
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.9;
+}
+
+kbd {
+  font-family: inherit;
+  font-size: 11px;
+  padding: 1px 5px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+}
+
+#importText {
+  width: 100%;
+  min-height: 130px;
+  resize: vertical;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.import-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.file-label {
+  font-size: 12.5px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.file-label input { font-size: 11px; padding: 4px; }
+
+.preview {
+  font-size: 12.5px;
+  color: var(--muted);
+  max-height: 150px;
+  overflow: auto;
+}
+
+.preview.ok { color: var(--accent); }
+
+.preview-list {
+  margin-top: 6px;
+  display: grid;
+  gap: 3px;
+  font-size: 12px;
+}
+
+.preview-list li { list-style: none; color: var(--text); }
+
+.import-note {
+  font-size: 11.5px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.import-note code {
+  font-size: 11px;
+  background: var(--bg);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.import-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.clear-label { font-size: 12.5px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.btns { display: flex; gap: 10px; }
