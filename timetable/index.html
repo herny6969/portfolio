@@ -75,11 +75,11 @@
       <textarea id="importText" rows="8" placeholder="在这里粘贴课表内容…"></textarea>
       <div class="import-actions">
         <button type="button" id="parseBtn">解析预览</button>
-        <label class="file-label">或选择文件<input type="file" id="importFile" accept=".csv,.txt" /></label>
+        <label class="file-label">或选择文件<input type="file" id="importFile" accept=".csv,.txt,.pdf" /></label>
       </div>
       <div id="preview" class="preview"></div>
       <p class="import-note">
-        支持整表复制，也支持一行一门课的 CSV：<code>星期一,1-2节,高等数学,刘老师,2-301,1,16</code>
+        支持整表复制、PDF 文件（.pdf）和一行一门课的 CSV：<code>星期一,1-2节,高等数学,刘老师,2-301,1,16</code>
       </p>
       <div class="import-footer">
         <label class="clear-label"><input type="checkbox" id="clearFirst" />导入前清空现有课表</label>
@@ -91,7 +91,9 @@
     </div>
   </dialog>
 
+  <script src="vendor/pdf.min.js"></script>
   <script src="parser.js"></script>
+  <script src="pdf-import.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
