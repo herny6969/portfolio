@@ -150,6 +150,8 @@ button.ghost { background: transparent; border-color: transparent; font-size: 16
 .hint { font-size: 12px; color: var(--muted); margin-top: 12px; }
 
 dialog {
+  margin: auto; /* 重置 margin:0 后，原生弹窗不会自动居中，要显式写回 */
+  max-height: 88vh;
   border: none;
   border-radius: 14px;
   padding: 0;
@@ -184,6 +186,8 @@ dialog menu { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6
   padding: 22px;
   display: grid;
   gap: 12px;
+  max-height: 86vh;
+  overflow: auto;
 }
 
 .import-body h2 { font-size: 17px; }
@@ -275,5 +279,8 @@ kbd {
   margin-top: 4px;
 }
 
-.clear-label { font-size: 12.5px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.clear-label { font-size: 12.5px; color: var(--muted); display: flex; gap: 6px; align-items: center; white-space: nowrap; }
 .btns { display: flex; gap: 10px; }
+
+.file-label span,
+.file-label { white-space: nowrap; }
