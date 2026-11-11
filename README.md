@@ -32,9 +32,9 @@ python -m http.server 8000
 
 | 占位 | 换成 |
 |---|---|
-| `你的名字` | 你的真名 |
-| `you@example.com` | 你的邮箱 |
-| `https://github.com/` | 你的 GitHub 主页 |
+| `翟志毅` | 你的真名 |
+| `2475547762@qq.com` | 你的邮箱 |
+| `https://github.com/herny6969` | 你的 GitHub 主页 |
 | `【换成你的页面截图】` | 你的项目截图（放 `assets/` 下，用 `<img>` 引入） |
 
 技能进度条的宽度在 `index.html` 里，直接改 `style="width: 75%"` 的数字。
