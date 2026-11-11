@@ -155,5 +155,112 @@
     localStorage.setItem(THEME_KEY, next);
   });
 
+  // ---------- 从教务系统导入 ----------
+  var importDialog = document.getElementById("importDialog");
+  var importText = document.getElementById("importText");
+  var preview = document.getElementById("preview");
+  var confirmBtn = document.getElementById("confirmImport");
+  var pendingImport = [];
+
+  document.getElementById("importBtn").addEventListener("click", function () {
+    importText.value = "";
+    preview.textContent = "";
+    preview.className = "preview";
+    confirmBtn.disabled = true;
+    pendingImport = [];
+    importDialog.showModal();
+  });
+
+  document.getElementById("cancelImport").addEventListener("click", function () {
+    importDialog.close();
+  });
+
+  // 选 CSV/TXT 文件直接读进文本框
+  document.getElementById("importFile").addEventListener("change", function (e) {
+    var f = e.target.files && e.target.files[0];
+    if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      importText.value = String(reader.result || "");
+      parsePreview();
+    };
+    reader.readAsText(f, "utf-8");
+  });
+
+  document.getElementById("parseBtn").addEventListener("click", parsePreview);
+
+  function parsePreview() {
+    var raw = importText.value;
+    if (!raw.trim()) {
+      preview.textContent = "还没粘贴内容。";
+      preview.className = "preview";
+      confirmBtn.disabled = true;
+      return;
+    }
+
+    pendingImport = window.parseTimetableText(raw);
+
+    if (!pendingImport.length) {
+      preview.innerHTML =
+        "没解析出课程。常见原因：<br>1）复制时只选中了文字，没选表格；<br>2）表格里是图片；<br>3）格式特殊，改用 CSV 一行一门课。";
+      preview.className = "preview";
+      confirmBtn.disabled = true;
+      return;
+    }
+
+    var list = pendingImport
+      .map(function (c) {
+        return (
+          "<li>" + DAYS[c.day] + " · 第 " + (c.slot * 2 + 1) + "-" + (c.slot * 2 + 2) +
+          " 节　" + esc(c.name) +
+          (c.room ? "　" + esc(c.room) : "") +
+          "　<span style='opacity:.6'>" + c.from + "-" + c.to + " 周</span></li>"
+        );
+      })
+      .join("");
+
+    preview.className = "preview ok";
+    preview.innerHTML =
+      "解析出 <b>" + pendingImport.length + "</b> 门课：<ul class='preview-list'>" + list + "</ul>";
+    confirmBtn.disabled = false;
+  }
+
+  confirmBtn.addEventListener("click", function () {
+    if (!pendingImport.length) return;
+    var clearFirst = document.getElementById("clearFirst").checked;
+
+    var base = clearFirst ? [] : data.slice();
+    var added = 0;
+    var skipped = 0;
+
+    pendingImport.forEach(function (c) {
+      var exists = base.some(function (x) {
+        return x.day === c.day && x.slot === c.slot;
+      });
+      if (exists) {
+        skipped++;
+        return;
+      }
+      base.push({
+        id: Date.now() + added,
+        day: c.day,
+        slot: c.slot,
+        name: c.name,
+        teacher: c.teacher || "",
+        room: c.room || "",
+        from: c.from,
+        to: c.to,
+        color: ["blue", "green", "orange", "purple"][added % 4],
+      });
+      added++;
+    });
+
+    data = base;
+    save();
+    render();
+    importDialog.close();
+    alert("导入完成：新增 " + added + " 门" + (skipped ? "，跳过 " + skipped + " 个时间冲突" : ""));
+  });
+
   render();
 })();
